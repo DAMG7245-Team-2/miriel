@@ -1,7 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, HTTPException, status
+from fastapi import Depends, FastAPI, UploadFile, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 import logging
@@ -63,20 +63,27 @@ class PDFUploadResponse(BaseModel):
 
 class SummaryRequest(BaseModel):
     pdf_id: str = Field(..., min_length=8, max_length=100)
-    summary_length: int = Field(200, gt=50, lt=1000)
     max_tokens: int = Field(500, gt=100, lt=2000)
-    model: str = Field(
-        "gemini/gemini-2.0-flash", description="LLM model to use for summary generation"
-    )
+    model: Literal[
+        "gemini/gemini-2.0-flash",
+        "openai/gpt-4o-mini",
+        "xai/grok-2-latest",
+        "deepseek/deepseek-chat",
+        "anthropic/claude-3-5-sonnet-20240620",
+    ] = "gemini/gemini-2.0-flash"
 
 
 class QuestionRequest(BaseModel):
     pdf_id: str
     question: str = Field(..., min_length=10)
     max_tokens: int = Field(500, gt=100, lt=2000)
-    model: str = Field(
-        "gemini/gemini-2.0-flash", description="LLM model to use for question answering"
-    )
+    model: Literal[
+        "gemini/gemini-2.0-flash",
+        "openai/gpt-4o-mini",
+        "xai/grok-2-latest",
+        "deepseek/deepseek-chat",
+        "anthropic/claude-3-5-sonnet-20240620",
+    ] = "gemini/gemini-2.0-flash"
 
 
 active_rag_pipelines = {}
@@ -145,7 +152,7 @@ async def upload_pdf(
 
 
 @app.post("/summarize/", response_model=dict, tags=["Assignment 4.1"])
-async def generate_summary(request: SummaryRequest):
+async def generate_summary(request: SummaryRequest = Depends()):
     # logger = logging.getLogger(__name__)
 
     # Send request to Redis stream and wait for response
@@ -159,16 +166,17 @@ async def generate_summary(request: SummaryRequest):
         await send_to_redis_stream(
             "pdf_content",
             {
-                "pdf_id": request.pdf_id,
-                "content": content,
+                "pdf_id": request.pdf_id.encode("utf-8"),
+                "content": content.encode("utf-8"),
             },
         )
         logger.info(f"PDF content sent to Redis stream for {request.pdf_id}")
+        # await asyncio.sleep(1)
         await send_to_redis_stream(
             "llm_requests",
             {
                 "type": "summary",
-                "pdf_id": request.pdf_id,
+                "pdf_id": request.pdf_id.encode("utf-8"),
                 "max_tokens": request.max_tokens,
                 "model": request.model,
             },
@@ -201,7 +209,7 @@ async def generate_summary(request: SummaryRequest):
 
 
 @app.post("/ask_question", status_code=status.HTTP_200_OK, tags=["Assignment 4.1"])
-async def answer_pdf_question(request: QuestionRequest):
+async def answer_pdf_question(request: QuestionRequest = Depends()):
     # logger = logging.getLogger(__name__)
     if request.pdf_id not in active_rag_pipelines:
         raise HTTPException(status_code=404, detail="PDF not found")
@@ -219,7 +227,7 @@ async def answer_pdf_question(request: QuestionRequest):
             },
         )
         logger.info(f"PDF {request.pdf_id} context sent to stream")
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
         await send_to_redis_stream(
             "llm_requests",
             {
