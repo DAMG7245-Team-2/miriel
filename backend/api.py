@@ -1,43 +1,31 @@
-import os
 import asyncio
-import zipfile
-from io import BytesIO
-from pathlib import Path
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, HTTPException, status, BackgroundTasks, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import FastAPI, UploadFile, HTTPException, status
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
 import logging
 
+from cloud_ops import download_file_from_s3, list_objects_in_s3
 from llm_manager import LLMManager
 from rag_pipeline import RAGPipeline
 
 logger = logging.getLogger(__name__)
-from pydantic import BaseModel, Field
-from typing import Literal, Optional
 
-from .redis_manager import (
-    send_to_redis_stream, 
-    receive_llm_response
-)
+from redis_manager import send_to_redis_stream, receive_llm_response
 from pipelines import (
     store_uploaded_pdf,
     get_pdf_content,
-    standardize_docling,
-    standardize_markitdown,
-    html_to_md_docling,
-    get_job_name,
-    pdf_to_md_docling,
-    clean_temp_files,
-    pdf_to_md_enterprise,
-    html_to_md_enterprise,
 )
+
 
 load_dotenv()
 app = FastAPI()
 
 # LLM Service instance
 llm_service = None
+
+bucket_name = "miriel"
 
 
 @asynccontextmanager
@@ -64,7 +52,7 @@ class URLRequest(BaseModel):
 
 
 class PDFSelection(BaseModel):
-    pdf_id: str = Field(..., min_length=8, max_length=24)
+    pdf_id: str
 
 
 class PDFUploadResponse(BaseModel):
@@ -93,353 +81,40 @@ class QuestionRequest(BaseModel):
 
 active_rag_pipelines = {}
 
-@app.post("/processurl/", status_code=status.HTTP_200_OK)
-async def process_url(
-    background_tasks: BackgroundTasks,
-    request: URLRequest,
-    include_markdown: bool = Query(False),
-    include_images: bool = Query(False),
-    include_tables: bool = Query(False),
+
+@app.get("/list_uploaded_pdfs", tags=["Assignment 4.1"])
+async def list_uploaded_pdfs():
+    return list_objects_in_s3(bucket_name, "pdfs/raw")
+
+
+@app.post("/select_uploaded_pdf", tags=["Assignment 4.1"])
+async def select_uploaded_pdf(
+    request: PDFSelection,
+    parser: Literal["docling", "mistral"],
+    chunking_strategy: Literal["recursive", "kamradt", "fixed"],
+    vector_store: Literal["chroma", "pinecone", "naive"],
 ):
-    if not any([include_markdown, include_images, include_tables]):
-        raise HTTPException(
-            status_code=400, detail="At least one output type must be selected"
-        )
-    try:
-        url = request.url
-        job_name = get_job_name()
-        result = html_to_md_docling(url, job_name)
-        background_tasks.add_task(my_background_task)
+    path = download_file_from_s3(
+        f"pdfs/raw/{request.pdf_id}.pdf", "temp_processing/output", bucket_name
+    )
+    if path is None:
+        logger.error(f"Failed to select PDF {request.pdf_id}")
+        raise HTTPException(status_code=404, detail="Failed to select PDF")
 
-        if include_images or include_tables:  # images or tables are requested
-            flag, zip_buffer, messages = create_zip_archive(
-                result, include_markdown, include_images, include_tables
-            )
-            if flag:
-                return StreamingResponse(
-                    zip_buffer,
-                    media_type="application/zip",
-                    headers={
-                        "Content-Disposition": f"attachment; filename={job_name}.zip"
-                    },
-                )
-            else:
-                raise HTTPException(status_code=500, detail=messages)
-        else:
-            if not result["markdown"]:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Markdown couldn't be generated. Maybe webpage has no data.",
-                )
-            return FileResponse(
-                result["markdown"],
-                media_type="application/octet-stream",
-                headers={"Content-Disposition": f"attachment; filename={job_name}.md"},
-                filename=f"{job_name}.md",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/processpdf/", status_code=status.HTTP_200_OK)
-async def process_pdf(
-    background_tasks: BackgroundTasks,
-    file: UploadFile,
-    include_markdown: bool = Query(False),
-    include_images: bool = Query(False),
-    include_tables: bool = Query(False),
-):
-    if not any([include_markdown, include_images, include_tables]):
-        raise HTTPException(
-            status_code=400, detail="At least one output type must be selected"
-        )
-
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="File must be a PDF")
-
-    try:
-        background_tasks.add_task(my_background_task)
-        contents = await file.read()
-        output = Path("./temp_processing/output/pdf")
-        os.makedirs(output, exist_ok=True)
-        job_name = get_job_name()
-
-        file_path = output / f"{job_name}.pdf"
-        with open(file_path, "wb") as f:
-            f.write(contents)
-            await file.close()
-
-        result = pdf_to_md_docling(file_path, job_name)
-
-        if include_images or include_tables:  # images or tables are requested
-            flag, zip_buffer, messages = create_zip_archive(
-                result, include_markdown, include_images, include_tables
-            )
-            if flag:
-                return StreamingResponse(
-                    zip_buffer,
-                    media_type="application/zip",
-                    headers={
-                        "Content-Disposition": f"attachment; filename={job_name}.zip"
-                    },
-                )
-            else:
-                raise HTTPException(status_code=500, detail=messages)
-
-        else:
-            if not result["markdown"] or not os.path.exists(result["markdown"]):
-                raise HTTPException(
-                    status_code=500,
-                    detail="Markdown couldn't be generated. Maybe webpage has no data.",
-                )
-            return FileResponse(
-                result["markdown"],
-                media_type="application/octet-stream",
-                filename=f"{job_name}.md",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        await file.close()
-
-
-@app.post("/standardizedoclingpdf/", status_code=status.HTTP_200_OK)
-async def standardizedoclingpdf(file: UploadFile, background_tasks: BackgroundTasks):
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="File must be a PDF")
-
-    background_tasks.add_task(my_background_task)
-    contents = await file.read()
-    output = Path("./temp_processing/output/pdf")
-    os.makedirs(output, exist_ok=True)
-    job_name = get_job_name()
-    try:
-        file_path = output / f"{job_name}.pdf"
-        with open(file_path, "wb") as f:
-            f.write(contents)
-            await file.close()
-        standardized_output = standardize_docling(str(file_path), job_name)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return FileResponse(
-        standardized_output,
-        media_type="application/octet-stream",
-        filename=f"{file.filename}.md",
+    upload_file = UploadFile(
+        file=open(path, "rb"),
+        filename=f"{request.pdf_id}.pdf",
+        headers={"content-type": "application/pdf"},
     )
 
-
-@app.post("/standardizedoclingurl/", status_code=status.HTTP_200_OK)
-async def standardizedoclingurl(request: URLRequest, background_tasks: BackgroundTasks):
-    try:
-        url = request.url
-        job_name = get_job_name()
-        background_tasks.add_task(my_background_task)
-
-        standardized_output = standardize_docling(url, job_name)
-
-        if standardized_output == -1:
-            raise HTTPException(
-                status_code=500,
-                detail="Markdown couldn't be generated. Maybe webpage has no data.",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return FileResponse(
-        standardized_output,
-        media_type="application/octet-stream",
-        filename=f"{job_name}.md",
-    )
+    return await upload_pdf(upload_file, parser, chunking_strategy, vector_store)
 
 
-@app.post("/standardizemarkitdownpdf/", status_code=status.HTTP_200_OK)
-async def standardizemarkitdownpdf(file: UploadFile, background_tasks: BackgroundTasks):
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="File must be a PDF")
-
-    background_tasks.add_task(my_background_task)
-    contents = await file.read()
-    output = Path("./temp_processing/output/pdf")
-    os.makedirs(output, exist_ok=True)
-    job_name = get_job_name()
-    try:
-        file_path = output / f"{job_name}.pdf"
-        with open(file_path, "wb") as f:
-            f.write(contents)
-            await file.close()
-        standardized_output = standardize_markitdown(str(file_path), job_name)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return FileResponse(
-        standardized_output,
-        media_type="application/octet-stream",
-        filename=f"{file.filename}.md",
-    )
-
-
-@app.post("/standardizemarkitdownurl/", status_code=status.HTTP_200_OK)
-async def standardizemarkitdownurl(
-    request: URLRequest, background_tasks: BackgroundTasks
-):
-    try:
-        url = request.url
-        job_name = get_job_name()
-        background_tasks.add_task(my_background_task)
-
-        standardized_output = standardize_markitdown(url, job_name)
-
-        if standardized_output == -1:
-            raise HTTPException(
-                status_code=500,
-                detail="Markdown couldn't be generated. Maybe webpage has no data.",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return FileResponse(
-        standardized_output,
-        media_type="application/octet-stream",
-        filename=f"{job_name}.md",
-    )
-
-
-@app.post("/processpdfenterprise/", status_code=status.HTTP_200_OK)
-async def process_pdf_enterprise(
-    background_tasks: BackgroundTasks,
-    file: UploadFile,
-    include_markdown: bool = Query(False),
-    include_images: bool = Query(False),
-    include_tables: bool = Query(False),
-):
-    if not any([include_markdown, include_images, include_tables]):
-        raise HTTPException(
-            status_code=400, detail="At least one output type must be selected"
-        )
-
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="File must be a PDF")
-    try:
-        background_tasks.add_task(my_background_task)
-        contents = await file.read()
-        output = Path("./temp_processing/output/pdf")
-        os.makedirs(output, exist_ok=True)
-        job_name = get_job_name()
-
-        file_path = output / f"{job_name}.pdf"
-        with open(file_path, "wb") as f:
-            f.write(contents)
-            await file.close()
-
-        result = pdf_to_md_enterprise(file_path, job_name)
-
-        if include_images or include_tables:  # images or tables are requested
-            flag, zip_buffer, messages = create_zip_archive(
-                result, include_markdown, include_images, include_tables
-            )
-            if flag:
-                return StreamingResponse(
-                    zip_buffer,
-                    media_type="application/zip",
-                    headers={
-                        "Content-Disposition": f"attachment; filename={job_name}.zip"
-                    },
-                )
-            else:
-                raise HTTPException(status_code=500, detail=messages)
-        else:
-            if not result["markdown"] or not os.path.exists(result["markdown"]):
-                raise HTTPException(
-                    status_code=500,
-                    detail="Markdown couldn't be generated. Maybe webpage has no data.",
-                )
-            return FileResponse(
-                result["markdown"],
-                media_type="application/octet-stream",
-                filename=f"{job_name}.md",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        await file.close()
-
-
-@app.post("/processurlenterprise/", status_code=status.HTTP_200_OK)
-async def process_url_enterprise(
-    background_tasks: BackgroundTasks,
-    request: URLRequest,
-    include_markdown: bool = Query(False),
-    include_images: bool = Query(False),
-    include_tables: bool = Query(False),
-):
-    if not any([include_markdown, include_images, include_tables]):
-        raise HTTPException(
-            status_code=400, detail="At least one output type must be selected"
-        )
-    try:
-        url = request.url
-        job_name = get_job_name()
-        result = html_to_md_enterprise(url, job_name)
-        background_tasks.add_task(my_background_task)
-
-        if include_images or include_tables:  # images or tables are requested
-            flag, zip_buffer, messages = create_zip_archive(
-                result, include_markdown, include_images, include_tables
-            )
-            if flag:
-                return StreamingResponse(
-                    zip_buffer,
-                    media_type="application/zip",
-                    headers={
-                        "Content-Disposition": f"attachment; filename={job_name}.zip"
-                    },
-                )
-            else:
-                raise HTTPException(status_code=500, detail=messages)
-        else:
-            if not result["markdown"]:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Markdown couldn't be generated. Maybe webpage has no data.",
-                )
-            return FileResponse(
-                result["markdown"],
-                media_type="application/octet-stream",
-                headers={"Content-Disposition": f"attachment; filename={job_name}.md"},
-                filename=f"{job_name}.md",
-            )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/select_pdfcontent", status_code=status.HTTP_200_OK, tags=["Assignment 4"])
-async def select_pdf_content(request: PDFSelection):
-    try:
-
-        content = get_pdf_content(request.pdf_id)
-        return {
-            "pdf_id": request.pdf_id,
-            "content": content[:5000],  # Return first 5k chars for preview
-            "metadata": {"pages": len(content.split("\n\f"))},
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/upload_pdf", status_code=status.HTTP_201_CREATED, tags=["Assignment 4"])
+@app.post("/upload_pdf", status_code=status.HTTP_201_CREATED, tags=["Assignment 4.1"])
 async def upload_pdf(
     file: UploadFile,
     parser: Literal["docling", "mistral"],
-    chunking_strategy: Literal["recursive", "semantic", "fixed"],
+    chunking_strategy: Literal["recursive", "kamradt", "fixed"],
     vector_store: Literal["chroma", "pinecone", "naive"],
 ):
     if file.content_type != "application/pdf":
@@ -459,20 +134,6 @@ async def upload_pdf(
         logger.info(f"PDF {pdf_id} processed")
         active_rag_pipelines[pdf_id] = rag_pipeline
 
-        # Send text content to stream for processing
-        # try:
-
-        # await send_to_redis_stream(
-        #     "pdf_content",
-        #     {
-        #         "pdf_id": pdf_id,
-        #         "content": contents,
-        #     },
-        # )
-        #     logger.info(f"PDF {pdf_id} content sent to stream")
-        # except Exception as e:
-        #     logger.error(f"Failed to process PDF: {str(e)}")
-        #     raise
         return PDFUploadResponse(
             pdf_id=pdf_id, status="success", message=f"PDF stored with ID: {pdf_id}"
         )
@@ -483,12 +144,11 @@ async def upload_pdf(
         await file.close()
 
 
-@app.post("/summarize/", response_model=dict, tags=["Assignment 4"])
+@app.post("/summarize/", response_model=dict, tags=["Assignment 4.1"])
 async def generate_summary(request: SummaryRequest):
     # logger = logging.getLogger(__name__)
 
     try:
-
         # Send request to Redis stream and wait for response
         try:
             content = get_pdf_content(request.pdf_id)
@@ -544,7 +204,7 @@ async def generate_summary(request: SummaryRequest):
         raise HTTPException(status_code=404, detail="PDF content not found")
 
 
-@app.post("/ask_question", status_code=status.HTTP_200_OK, tags=["Assignment 4"])
+@app.post("/ask_question", status_code=status.HTTP_200_OK, tags=["Assignment 4.1"])
 async def answer_pdf_question(request: QuestionRequest):
     # logger = logging.getLogger(__name__)
     if request.pdf_id not in active_rag_pipelines:
@@ -555,72 +215,45 @@ async def answer_pdf_question(request: QuestionRequest):
         logger.info(f"PDF {request.pdf_id} retrieved {len(relevant_chunks)} chunks")
         context = "\n\n".join(relevant_chunks)
         logger.info(f"PDF {request.pdf_id} context: {context}")
-        # await send_to_redis_stream(
-        #     "pdf_content",
-        #     {
-        #         "pdf_id": request.pdf_id,
-        #         "content": context,
-        #     },
-        # )
-        # logger.info(f"PDF {request.pdf_id} context sent to stream")
-        # await send_to_redis_stream(
-        #     "llm_requests",
-        #     {
-        #         "type": "question",
-        #         "pdf_id": request.pdf_id,
-        #         "question": request.question,
-        #         "max_tokens": request.max_tokens,
-        #     },
-        # )
-        # logger.info(f"Question {request.question} sent to stream")
-        # response = await receive_llm_response()
-        system_message = """You are a helpful assistant that provides accurate information based on the given context. 
-                            If the context doesn't contain relevant information to answer the question, acknowledge that and provide general information if possible.
-                            Always cite your sources by referring to the source numbers provided in brackets. Do not make up information."""
-
-        # Define the user message with query and context
-        user_message = f"""Question: {request.question}
-        
-        Context information:
-        {context}
-        
-        Please answer the question based on the context information provided."""
-        # prompt = (
-        #     "Context:\n{context}\n\nQuestion: {question}\n\n"
-        #     "Requirements:"
-        #     "- Answer must be factual based on context"
-        #     "- Maximum {max_tokens} tokens"
-        #     '- If unsure, state "I cannot determine from the provided content'
-        # ).format(
-        #     context=context, question=request.question, max_tokens=request.max_tokens
-        # )
-        prompt = {
-            "system_message": system_message,
-            "user_message": user_message,
-        }
-
-        llm_manager = LLMManager()
-        content, usage_metrics = await llm_manager.get_llm_response(
-            prompt, request.model
+        await send_to_redis_stream(
+            "pdf_content",
+            {
+                "pdf_id": request.pdf_id.encode("utf-8"),
+                "content": context.encode("utf-8"),
+            },
         )
-        # if not response:
-        #     raise HTTPException(status_code=408, detail="LLM response timeout")
+        logger.info(f"PDF {request.pdf_id} context sent to stream")
+        await asyncio.sleep(1)
+        await send_to_redis_stream(
+            "llm_requests",
+            {
+                "type": "question",
+                "pdf_id": request.pdf_id.encode("utf-8"),
+                "question": request.question.encode("utf-8"),
+                "max_tokens": request.max_tokens,
+            },
+        )
+        logger.info(f"Question {request.question} sent to stream")
+        response = await receive_llm_response()
+        logger.info(f"Question {request.question} response: {response}")
+        if not response:
+            raise HTTPException(status_code=408, detail="LLM response timeout")
 
         # Extract content from response
-        # content = response.get("content")
-        # if not content:
-        #     logger.error(f"Missing content in response: {response}")
-        #     raise HTTPException(
-        #         status_code=500, detail="Invalid response format from LLM service"
-        #     )
+        content = response.get("content")
+        if not content:
+            logger.error(f"Missing content in response: {response}")
+            raise HTTPException(
+                status_code=500, detail="Invalid response format from LLM service"
+            )
 
         # Check response status
-        # if response.get("status") != "success":
-        #     logger.error(f"Failed response status: {response}")
-        #     raise HTTPException(status_code=500, detail="LLM service processing failed")
+        if response.get("status") != "success":
+            logger.error(f"Failed response status: {response}")
+            raise HTTPException(status_code=500, detail="LLM service processing failed")
 
         # Extract usage metrics from response
-        # usage_metrics = response.get("usage", {})
+        usage_metrics = response.get("usage", {})
         if not usage_metrics:
             logger.warning("No usage metrics found in response")
 
@@ -640,8 +273,11 @@ async def answer_pdf_question(request: QuestionRequest):
         logger.error(f"LLM processing failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Question answering failed")
 
-@app.post("/ask_nvidia", status_code=status.HTTP_200_OK, tags=["Assignment 4"])
-async def ask_nvidia(request: QuestionRequest, year: Optional[str] = None, quarter: Optional[str] = None):
+
+@app.post("/ask_nvidia", status_code=status.HTTP_200_OK, tags=["Assignment 4.2"])
+async def ask_nvidia(
+    request: QuestionRequest, year: Optional[str] = None, quarter: Optional[str] = None
+):
     try:
         pipeline = RAGPipeline(
             pdf_id="0000",
@@ -649,18 +285,12 @@ async def ask_nvidia(request: QuestionRequest, year: Optional[str] = None, quart
             vector_store="nvidia",
             chunking_strategy="recursive",
             year=year,
-            quarter=quarter
+            quarter=quarter,
         )
-        pipeline.process()
-        
-        context = pipeline.get_relevant_chunks(
-            query=request.question,
-            k=5
-        )
-        
-        system_message = """You are a helpful assistant that provides accurate information based on the given context. 
-                            If the context doesn't contain relevant information to answer the question, acknowledge that and provide general information if possible.
-                            Always cite your sources by referring to the source numbers provided in brackets. Do not make up information."""
+        pipeline.get_relevant_chunks(query=request.question, k=5)
+
+        context = pipeline.get_relevant_chunks(query=request.question, k=5)
+        logger.info(f"----------context: {context}")
 
         # Define the user message with query and context
         user_message = f"""Question: {request.question}
@@ -669,14 +299,10 @@ async def ask_nvidia(request: QuestionRequest, year: Optional[str] = None, quart
         {context}
         
         Please answer the question based on the context information provided."""
-        prompt = {
-            "system_message": system_message,
-            "user_message": user_message,
-        }
 
         llm_manager = LLMManager()
         content, usage_metrics = await llm_manager.get_llm_response(
-            prompt, request.model
+            user_message, request.model
         )
 
         if not usage_metrics:
@@ -697,45 +323,3 @@ async def ask_nvidia(request: QuestionRequest, year: Optional[str] = None, quart
     except Exception as e:
         logger.error(f"Error in NVIDIA RAG query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
-def create_zip_archive(result, include_markdown, include_images, include_tables):
-    flag = False
-    messages = []
-    zip_buffer = BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        # Markdown
-        if include_markdown:
-            if not result["markdown"]:
-                messages.append(
-                    "Markdown couldn't be generated. Maybe webpage has blockers."
-                )
-            else:
-                zip_file.write(result["markdown"], arcname="document.md")
-                flag = flag or True
-
-        # Images
-        if include_images:
-            if not result["images"]:
-                messages.append("No images found in the input webpage.")
-            else:
-                for img in result["images"].iterdir():
-                    zip_file.write(img, arcname=f"images/{img.name}")
-                flag = flag or True
-
-        # Tables
-        if include_tables:
-            if not result["tables"]:
-                messages.append("No tables found in the input webpage.")
-            else:
-                for table in result["tables"].iterdir():
-                    zip_file.write(table, arcname=f"tables/{table.name}")
-                flag = flag or True
-
-    zip_buffer.seek(0)
-    return flag, zip_buffer, messages
-
-
-def my_background_task():
-    logger.info("Running background maintenance tasks")
-    clean_temp_files()
-    print("Performed cleanup of temp files.")

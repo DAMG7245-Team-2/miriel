@@ -34,7 +34,7 @@ graph TD
     B --> D[Redis Streams]
     C --> E[Various LLM Providers]
     B --> F[PDF Processing Service]
-    F --> G[Document Store]
+    F --> G[Vector Store]
     D --> H[Background Workers]
 ```
 
@@ -45,8 +45,8 @@ graph TD
 - **LLM Management**: LiteLLM
 - **Message Queue**: Redis Streams
 - **PDF Processing**:
-  - Custom Python Parser (PyMuPDF, Docling)
-  - Llama Parser (Enterprise)
+  - Docling
+  - MistralOCR
 - **Containerization**: Docker & Docker Compose
 
 ## 🚀 Getting Started
@@ -131,11 +131,7 @@ miriel/
 
 - `POST /summarize`: Generate document summaries
 - `POST /ask_question`: Process questions about document content
-
-### Model Management
-
-- `GET /models`: List available LLM models
-- `POST /select_model`: Select LLM model for processing
+- `POST /ask_nvidia`: RAG context of Nvidia
 
 ## LLMs Integrated
 
@@ -147,14 +143,14 @@ miriel/
 
 ## Project Deliverables
 
-- **FastAPI Backend**: [https://nehadevarapalli-parseforge.hf.space/](https://nehadevarapalli-parseforge.hf.space/)
-- **Streamlit Frontend**: [https://parse-forge.streamlit.app](https://parse-forge.streamlit.app)
-- **GitHub Project**: [https://github.com/users/nehadevarapalli/projects/2](https://github.com/users/nehadevarapalli/projects/2)
-- **Codelabs Documentation**: [https://codelabs-preview.appspot.com/?file_id=1SZHxAEETpt6-INannVHcy-WhCiZ-rmFsuChKF19sKO8#0](https://codelabs-preview.appspot.com/?file_id=1SZHxAEETpt6-INannVHcy-WhCiZ-rmFsuChKF19sKO8#0)
+- **FastAPI Backend**: [http://35.212.110.110:8080/docs](http://35.212.110.110:8080/docs)
+- **Streamlit Frontend**: [https://miriel-frontend.streamlit.app/](https://miriel-frontend.streamlit.app/)
+- **GitHub Project**: [https://github.com/orgs/DAMG7245-Team-2/projects/2](https://github.com/orgs/DAMG7245-Team-2/projects/2)
+- **Codelabs Documentation**: [https://codelabs-preview.appspot.com/?file_id=1TF7GZ750KJaCr6cjvyliaNIw2xbDnQxW8954510jy1o/#0](https://codelabs-preview.appspot.com/?file_id=1TF7GZ750KJaCr6cjvyliaNIw2xbDnQxW8954510jy1o/#0)
 - **Demo Video**: [Youtube](https://www.youtube.com/watch?v=nrw8KiRCwU4)
 
 ## Workflow
 
-1. Upload a PDF via API or frontend or select from exisiting uploads
-2. Create a chat thread with selected PDF
+1. Create a chat thread
+2. Upload PDF
 3. Ask questions on the PDF content (e.g. Generate Summary)

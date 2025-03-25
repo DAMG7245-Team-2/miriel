@@ -1,6 +1,5 @@
 import chromadb
-from chunker import recursive_chunker
-from vector_store import add_chunks_to_collection, retrieve_relevant_chunks
+from vector_store import retrieve_relevant_chunks
 
 if __name__ == "__main__":
     client = chromadb.PersistentClient(path="./backend/chroma_db")

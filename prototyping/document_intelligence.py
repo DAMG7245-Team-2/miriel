@@ -2,18 +2,17 @@ import os
 
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
-from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 # Set up the client
-endpoint = os.getenv('endpoint')
-key = os.getenv('key')
+endpoint = os.getenv("endpoint")
+key = os.getenv("key")
 credential = AzureKeyCredential(key)
 client = DocumentAnalysisClient(endpoint, credential)
 
 # Load the PDF file
-with open(os.getenv('pdf_location'), "rb") as f:
+with open(os.getenv("pdf_location"), "rb") as f:
     poller = client.begin_analyze_document("prebuilt-layout", document=f)
 
 # Get the results
@@ -30,7 +29,9 @@ with open("output.md", "w", encoding="utf-8") as md_file:
     for table in result.tables:
         md_file.write(f"## Table {table.row_count}x{table.column_count}\n")
         for cell in table.cells:
-            md_file.write(f"- Cell [{cell.row_index}, {cell.column_index}]: {cell.content}\n")
+            md_file.write(
+                f"- Cell [{cell.row_index}, {cell.column_index}]: {cell.content}\n"
+            )
 
     md_file.write("\n# Extracted Images\n")
     for page in result.pages:

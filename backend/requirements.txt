@@ -1,9 +1,6 @@
-beautifulsoup4==4.13.3
 boto3==1.36.13
 docling==2.18.0
 fastapi[standard]
-llama_parse==0.5.20
-markitdown==0.0.1a3
 pandas==2.2.3
 Pillow
 pymupdf
@@ -23,3 +20,5 @@ chromadb==0.6.3
 numpy
 pinecone
 google-generativeai==0.8.4
+sentence_transformers
+accelerate

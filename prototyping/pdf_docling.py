@@ -14,7 +14,7 @@ def convert_pdf_with_docling(source_pdf_path, output_file_path):
     plain_text = result.document.export_to_text()
 
     # Saving results to a text file
-    with open(output_file_path, 'w', encoding='utf-8') as f:
+    with open(output_file_path, "w", encoding="utf-8") as f:
         json.dump(result.document.export_to_dict(), f, indent=4)
 
     return plain_text

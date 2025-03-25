@@ -5,7 +5,7 @@ from pathlib import Path
 import fitz
 import pandas as pd
 from docling.document_converter import DocumentConverter
-from mistralai import DocumentURLChunk, FilePurpose, Mistral
+from mistralai import Mistral
 
 from cloud_ops import (
     download_file_from_s3,
@@ -63,7 +63,7 @@ def extract_text_with_mistral(pdf_file: Path, markdown_file: Path):
         f.write(
             "".join(
                 [
-                    f"### Page {i+1}\n{ocr_result.pages[i].markdown}"
+                    f"### Page {i + 1}\n{ocr_result.pages[i].markdown}"
                     for i in range(len(ocr_result.pages))
                 ]
             )

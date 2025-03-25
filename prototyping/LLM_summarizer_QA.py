@@ -1,8 +1,8 @@
 import litellm
 import os
 import PyPDF2
-from dotenv import load_dotenv
-load_dotenv()
+
+# load_dotenv()
 
 api_keys = {
     "gpt-4o": os.getenv("OPENAI_API_KEY"),
@@ -21,9 +21,9 @@ model_mappings = {
     "grok": "xai/grok-1",
 }
 
-#Extracts text from a given PDF file
+
+# Extracts text from a given PDF file
 def extract_text_from_pdf(pdf_path):
-    
     try:
         text = ""
         with open(pdf_path, "rb") as pdf_file:
@@ -36,11 +36,14 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         return f"Error reading PDF: {str(e)}"
 
-#Summarizes the extracted text using the selected LLM
+
+# Summarizes the extracted text using the selected LLM
 def summarize_text(text, markdown_file, model_name):
-    
     if model_name not in model_mappings:
-        return {"error": "Invalid model selection. Choose from: " + ", ".join(model_mappings.keys())}
+        return {
+            "error": "Invalid model selection. Choose from: "
+            + ", ".join(model_mappings.keys())
+        }
 
     model = model_mappings[model_name]
     api_key = api_keys[model_name]
@@ -54,29 +57,35 @@ def summarize_text(text, markdown_file, model_name):
         response = litellm.completion(
             model=model,
             messages=[
-                {"role": "system", "content": "Summarize the following text in 5 to 6 lines:"},
-                {"role": "user", "content": markdown_content}
+                {
+                    "role": "system",
+                    "content": "Summarize the following text in 5 to 6 lines:",
+                },
+                {"role": "user", "content": markdown_content},
             ],
             api_key=api_key,
-            stream=False
+            stream=False,
         )
 
         return {
-            "summary": response['choices'][0]['message']['content'],
+            "summary": response["choices"][0]["message"]["content"],
             "input_tokens": response["usage"]["prompt_tokens"],
             "output_tokens": response["usage"]["completion_tokens"],
             "total_tokens": response["usage"]["total_tokens"],
-            "model": model_name
+            "model": model_name,
         }
 
     except Exception as e:
         return {"error": str(e)}
 
-#Answers a question based on the extracted PDF text using the selected LLM
-def answer_question_from_pdf(text,markdown_file, question, model_name):
-    
+
+# Answers a question based on the extracted PDF text using the selected LLM
+def answer_question_from_pdf(text, markdown_file, question, model_name):
     if model_name not in model_mappings:
-        return {"error": "Invalid model selection. Choose from: " + ", ".join(model_mappings.keys())}
+        return {
+            "error": "Invalid model selection. Choose from: "
+            + ", ".join(model_mappings.keys())
+        }
 
     model = model_mappings[model_name]
     api_key = api_keys[model_name]
@@ -86,28 +95,34 @@ def answer_question_from_pdf(text,markdown_file, question, model_name):
 
     try:
         with open(markdown_file, "r", encoding="utf-8") as markdown_file:
-            markdown_content = markdown_file.read()        
+            markdown_content = markdown_file.read()
         response = litellm.completion(
             model=model,
             messages=[
-                {"role": "system", "content": "Answer the following question based on the given text:"},
-                {"role": "user", "content": f"Markdown Document: {markdown_content}\n\nQuestion: {question}"}
+                {
+                    "role": "system",
+                    "content": "Answer the following question based on the given text:",
+                },
+                {
+                    "role": "user",
+                    "content": f"Markdown Document: {markdown_content}\n\nQuestion: {question}",
+                },
             ],
             api_key=api_key,
-            stream=False
+            stream=False,
         )
 
         return {
             "question": question,
-            "answer": response['choices'][0]['message']['content'],
+            "answer": response["choices"][0]["message"]["content"],
             "input_tokens": response["usage"]["prompt_tokens"],
             "output_tokens": response["usage"]["completion_tokens"],
             "total_tokens": response["usage"]["total_tokens"],
-            
         }
 
     except Exception as e:
         return {"error": str(e)}
+
 
 # Usage
 pdf_path = "Resume_Continental.pdf"  # Replace with the actual PDF file path
@@ -117,7 +132,7 @@ pdf_text = extract_text_from_pdf(pdf_path)
 if pdf_text.startswith("Error"):
     print(pdf_text)
 else:
-    #Sumamrize
+    # Sumamrize
     result = summarize_text(pdf_text, markdown_file, selected_model)
     print("\nSummary\n", result.get("summary"))
     print("\nTotal No Of Tokens\n", result.get("total_tokens"))
@@ -126,7 +141,9 @@ else:
 
     # Ask a question based on the PDF content
     user_question = "Name the authors of the paper?"  # Modify this question as needed
-    answer_result = answer_question_from_pdf(pdf_text,markdown_file, user_question, selected_model)
+    answer_result = answer_question_from_pdf(
+        pdf_text, markdown_file, user_question, selected_model
+    )
     print("\nQuestion:", answer_result.get("question"))
     print("\nAnswer:", answer_result.get("answer"))
     print("\nTotal No Of Tokens:", answer_result.get("total_tokens"))

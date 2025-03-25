@@ -1,0 +1,4 @@
+__pycache__
+.backend
+temp_processing
+.env

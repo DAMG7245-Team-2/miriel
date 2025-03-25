@@ -2,9 +2,8 @@ import os
 import litellm
 from litellm import acompletion, completion_cost
 import logging
-from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,23 +26,28 @@ class LLMManager:
                 raise ValueError(f"API key for {model} not configured")
 
     async def get_llm_response(
-        self, prompt: dict, model_name: str = "gemini/gemini-2.0-flash"
+        self, prompt: str, model_name: str = "gemini/gemini-2.0-flash"
     ):
         """
         Get LLM response with usage tracking and error handling
         """
+        system_message = """You are a helpful assistant that provides accurate information based on the given context.
+                            If the context doesn't contain relevant information to answer the question, acknowledge that and provide general information if possible.
+                            Always cite your sources by referring to the source numbers provided in brackets. Do not make up information."""
+        user_message = prompt
         try:
             logger.info(f"LLMManager: Sending request to {model_name}...")
             response = await acompletion(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": prompt["system_message"]},
-                    {"role": "user", "content": prompt["user_message"]},
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message},
                 ],
                 api_key=self.model_config[model_name],
             )
 
             # Track usage
+            logger.info(f"pre cost calc:Response: {response}")
             input_tokens = response["usage"]["prompt_tokens"]
             output_tokens = response["usage"]["completion_tokens"]
             cost = completion_cost(completion_response=response, model=model_name)

@@ -2,9 +2,8 @@ import asyncio
 import aiohttp
 import logging
 import threading
-import time
 import queue
-from typing import Dict, List, Callable
+from typing import Callable
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

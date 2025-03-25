@@ -8,7 +8,7 @@ from PIL import Image
 
 def open_pdf(file_path):
     try:
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             return io.BytesIO(f.read())
     except FileNotFoundError:
         print(f"File not found: {file_path}")
@@ -62,7 +62,7 @@ def visualize_charts(charts):
     for idx, chart in enumerate(charts):
         plt.figure(idx)
         plt.imshow(chart)
-        plt.axis('off')
+        plt.axis("off")
         plt.title(f"Chart {idx + 1}")
         plt.show()
 
@@ -87,7 +87,7 @@ def process_pdf(file_path):
 pdf_file_path = "/path/example.pdf"
 process_pdf(pdf_file_path)
 
-'''
+"""
 from pypdf import PdfReader
 
 reader = PdfReader("example.pdf")
@@ -99,4 +99,4 @@ for page in reader.pages:
     for count, image_file_object in enumerate(page.images):
         with open('extracted/'+str(count) + image_file_object.name, "wb") as fp:
             fp.write(image_file_object.data)
-'''
+"""

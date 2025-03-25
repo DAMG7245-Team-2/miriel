@@ -1,12 +1,12 @@
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/home/user/backend
+    # volumes:
+    #   - ./backend:/home/user/backend
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -14,14 +14,16 @@ services:
       - redis
     networks:
       - app-network
-    command: uvicorn api:app --host 0.0.0.0 --port 8000 --reload --loop asyncio
+    command: uvicorn api:app --host 0.0.0.0 --port 8000 --loop asyncio
+    env_file:
+      - backend/.env
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-    volumes:
-      - redis-data:/data
+    # volumes:
+    #   - redis-data:/data
     networks:
       - app-network
     command: redis-server --appendonly yes

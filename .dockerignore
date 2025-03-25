@@ -1,8 +1,0 @@
-.git
-__pycache__
-.venv/
-*.log
-prototyping/
-frontend/
-assets/
-backend/.backend

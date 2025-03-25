@@ -24,41 +24,54 @@ model_mappings = {
     "grok": "xai/grok-1",
 }
 
+
 def retrieve_relevant_chunks(query, embedding_model, top_k=5):
     query_embedding = embedding_model.encode([query])[0].tolist()
     results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
-    return "\n\n".join([match['metadata']['text'] for match in results['matches']])
+    return "\n\n".join([match["metadata"]["text"] for match in results["matches"]])
+
 
 def answer_question_rag(query, model_name, embedding_model):
     if model_name not in model_mappings:
-        return {"error": f"Invalid model. Choose from: {', '.join(model_mappings.keys())}"}
+        return {
+            "error": f"Invalid model. Choose from: {', '.join(model_mappings.keys())}"
+        }
     api_key = api_keys[model_name]
     if not api_key:
         return {"error": f"API key for {model_name} is missing."}
-    
+
     retrieved_context = retrieve_relevant_chunks(query, embedding_model)
-    
+
     response = litellm.completion(
         model=model_mappings[model_name],
         messages=[
-            {"role": "system", "content": "You are an AI assistant. Answer the user's question based on the following retrieved information."},
-            {"role": "user", "content": f"Context:\n{retrieved_context}\n\nQuestion: {query}"}
+            {
+                "role": "system",
+                "content": "You are an AI assistant. Answer the user's question based on the following retrieved information.",
+            },
+            {
+                "role": "user",
+                "content": f"Context:\n{retrieved_context}\n\nQuestion: {query}",
+            },
         ],
         api_key=api_key,
-        stream=False
+        stream=False,
     )
 
     return {
         "question": query,
-        "answer": response['choices'][0]['message']['content'],
+        "answer": response["choices"][0]["message"]["content"],
         "input_tokens": response["usage"]["prompt_tokens"],
         "output_tokens": response["usage"]["completion_tokens"],
         "total_tokens": response["usage"]["total_tokens"],
     }
 
-def retrieve_relevant_chunks_nvidia(query, embedding_model, top_k=5, year=None, quarter=None):
+
+def retrieve_relevant_chunks_nvidia(
+    query, embedding_model, top_k=5, year=None, quarter=None
+):
     query_embedding = embedding_model.encode([query])[0].tolist()
-    
+
     # Build filter dictionary
     filter_dict = {}
     if year:
@@ -70,15 +83,21 @@ def retrieve_relevant_chunks_nvidia(query, embedding_model, top_k=5, year=None, 
         vector=query_embedding,
         top_k=top_k,
         include_metadata=True,
-        filter=filter_dict if filter_dict else None
+        filter=filter_dict if filter_dict else None,
     )
 
-    chunks = [match['metadata']['text'] for match in results['matches']]
+    chunks = [match["metadata"]["text"] for match in results["matches"]]
     return "\n\n".join(chunks)
 
-def answer_question_rag_nvidia(query, model_name, embedding_model, year=None, quarter=None):
+
+def answer_question_rag_nvidia(
+    query, model_name, embedding_model, year=None, quarter=None
+):
     if model_name not in model_mappings:
-        return {"error": "Invalid model selection. Choose from: " + ", ".join(model_mappings.keys())}
+        return {
+            "error": "Invalid model selection. Choose from: "
+            + ", ".join(model_mappings.keys())
+        }
 
     model = model_mappings[model_name]
     api_key = api_keys[model_name]
@@ -88,21 +107,29 @@ def answer_question_rag_nvidia(query, model_name, embedding_model, year=None, qu
 
     try:
         # Retrieve chunks with optional year & quarter filter
-        retrieved_context = retrieve_relevant_chunks_nvidia(query, embedding_model, year=year, quarter=quarter)
+        retrieved_context = retrieve_relevant_chunks_nvidia(
+            query, embedding_model, year=year, quarter=quarter
+        )
 
         response = litellm.completion(
             model=model,
             messages=[
-                {"role": "system", "content": "You are an AI assistant. Answer the user's question based on the context given to you."},
-                {"role": "user", "content": f"Context:\n{retrieved_context}\n\nQuestion: {query}"}
+                {
+                    "role": "system",
+                    "content": "You are an AI assistant. Answer the user's question based on the context given to you.",
+                },
+                {
+                    "role": "user",
+                    "content": f"Context:\n{retrieved_context}\n\nQuestion: {query}",
+                },
             ],
             api_key=api_key,
-            stream=False
+            stream=False,
         )
 
         return {
             "question": query,
-            "answer": response['choices'][0]['message']['content'],
+            "answer": response["choices"][0]["message"]["content"],
             "input_tokens": response["usage"]["prompt_tokens"],
             "output_tokens": response["usage"]["completion_tokens"],
             "total_tokens": response["usage"]["total_tokens"],
@@ -125,7 +152,9 @@ if __name__ == "__main__":
     print("\nInput Tokens:", result.get("input_tokens"))
     print("\nOutput Tokens:", result.get("output_tokens"))
 
-    result_nvidia = answer_question_rag_nvidia(query, selected_model, embedding_model, year="2024", quarter="Q4")
+    result_nvidia = answer_question_rag_nvidia(
+        query, selected_model, embedding_model, year="2024", quarter="Q4"
+    )
 
     print("\nQuestion:", result_nvidia.get("question"))
     print("\nAnswer:", result_nvidia.get("answer"))

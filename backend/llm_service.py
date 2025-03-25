@@ -2,14 +2,13 @@ import asyncio
 import json
 import logging
 from typing import Dict, Any, Optional
-import litellm
 
-from .llm_manager import LLMManager
-from .redis_manager import (
-    receive_from_redis_stream, 
-    send_to_redis_stream, 
-    get_pdf_content_from_redis, 
-    set_stream_checkpoint
+from llm_manager import LLMManager
+from redis_manager import (
+    receive_from_redis_stream,
+    send_to_redis_stream,
+    get_pdf_content_from_redis,
+    set_stream_checkpoint,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,8 +35,10 @@ class LLMService:
             try:
                 # Get PDF content from Redis with improved error handling
                 pdf_content = await get_pdf_content_from_redis(pdf_id)
-                context = pdf_content.decode('utf-8')
-                
+                logger.info(f"PDF content length: {len(pdf_content)}")
+                context = pdf_content
+                # .decode("utf-8")
+
                 answer, usage_metrics = await self.llm_manager.ask_question(
                     context=context,
                     question=question,
@@ -77,7 +78,8 @@ class LLMService:
                 raise ValueError("PDF content not found")
 
             # Decode PDF content from bytes
-            text = pdf_content.decode("utf-8")
+            text = pdf_content
+            # .decode("utf-8")
 
             summary, usage_metrics = await self.llm_manager.get_summary(
                 text=text, max_tokens=max_tokens, model=model
@@ -137,13 +139,18 @@ class LLMService:
                     # Decode and parse JSON values from Redis stream
                     request = {}
                     for k, v in message_data.items():
-                        key = k.decode()
+                        key = k
+                        # .decode()
                         try:
                             # Try to parse JSON value
-                            value = json.loads(v.decode())
+                            value = json.loads(
+                                v
+                                #    .decode()
+                            )
                         except json.JSONDecodeError:
                             # If not JSON, use raw decoded value
-                            value = v.decode()
+                            value = v
+                            # .decode()
                         request[key] = value
 
                     if "type" not in request:

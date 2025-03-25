@@ -7,8 +7,9 @@ import openai
 import numpy as np
 import logging as logger
 
-from chunker import recursive_chunker, kamradt_chunker
+from chunker import character_chunk_text, recursive_chunker, kamradt_chunker
 from vector_store import add_chunks_to_collection, retrieve_relevant_chunks
+
 
 class RAGPipeline:
     PERSISTENT_PATH = "chroma_db"
@@ -18,11 +19,11 @@ class RAGPipeline:
         pdf_id: str,
         text: str,
         vector_store: Literal["chroma", "pinecone", "naive", "nvidia"],
-        chunking_strategy: Literal["recursive", "semantic", "fixed", "kamradt"],
+        chunking_strategy: Literal["recursive", "kamradt"],
         chunk_size: Optional[int] = None,
         chunk_overlap: Optional[int] = None,
-    year: Optional[str] = None,
-    quarter: Optional[str] = None,
+        year: Optional[str] = None,
+        quarter: Optional[str] = None,
     ):
         self.pdf_id = pdf_id
         self.vector_store = vector_store
@@ -38,11 +39,15 @@ class RAGPipeline:
         match self.chunking_strategy:
             case "recursive":
                 if self.chunk_size is not None and self.chunk_overlap is not None:
-                    chunks = recursive_chunker(self.text, self.chunk_size, self.chunk_overlap)
+                    chunks = recursive_chunker(
+                        self.text, self.chunk_size, self.chunk_overlap
+                    )
                 else:
                     chunks = recursive_chunker(self.text)
             case "kamradt":
                 chunks = kamradt_chunker(self.text)
+            case "fixed":
+                chunks = character_chunk_text(self.text)
             case _:
                 raise ValueError(
                     f"Unsupported chunking strategy: {self.chunking_strategy}"
@@ -53,43 +58,59 @@ class RAGPipeline:
                 client = chromadb.PersistentClient(path=self.PERSISTENT_PATH)
                 collection = client.get_or_create_collection(self.pdf_id)
                 add_chunks_to_collection(collection, chunks)
-            case "pinecone": #384, 50
+            case "pinecone":  # 384, 50
                 if not os.environ.get("PINECONE_API_KEY"):
-                    raise ValueError("PINECONE_API_KEY environment variable is required for Pinecone.")
+                    raise ValueError(
+                        "PINECONE_API_KEY environment variable is required for Pinecone."
+                    )
                 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
                 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
                 embeddings = embedding_model.encode(chunks)
-                
+
                 index_name = self.pdf_id
                 if index_name not in pc.list_indexes().names():
                     pc.create_index(
                         name=index_name,
                         dimension=384,
-                        metric='cosine',
-                        spec=ServerlessSpec(cloud='aws', region='us-east-1')
+                        metric="cosine",
+                        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
                     )
-                
+
                 index = pc.Index(index_name)
                 vectors = [
-                    {"id": f"chunk-{i}", "values": emb.tolist(), "metadata": {"text": chunk}}
+                    {
+                        "id": f"chunk-{i}",
+                        "values": emb.tolist(),
+                        "metadata": {"text": chunk},
+                    }
                     for i, (chunk, emb) in enumerate(zip(chunks, embeddings))
                 ]
                 index.upsert(vectors=vectors)
             case "nvidia":
                 if not os.environ.get("PINECONE_API_KEY"):
-                    raise ValueError("PINECONE_API_KEY environment variable is required for Pinecone.")
+                    raise ValueError(
+                        "PINECONE_API_KEY environment variable is required for Pinecone."
+                    )
                 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
                 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
                 embeddings = embedding_model.encode(chunks)
-                
+
                 index_name = "document-embeddings-v2"
                 if index_name not in pc.list_indexes().names():
                     logger.info("NVIDIA index not found")
                     raise ValueError("NVIDIA index not found")
-                
+
                 index = pc.Index(index_name)
                 vectors = [
-                    {"id": f"chunk-{i}", "values": emb.tolist(), "metadata": {"text": chunk, "year": self.year, "quarter": self.quarter}}
+                    {
+                        "id": f"chunk-{i}",
+                        "values": emb.tolist(),
+                        "metadata": {
+                            "text": chunk,
+                            "year": self.year,
+                            "quarter": self.quarter,
+                        },
+                    }
                     for i, (chunk, emb) in enumerate(zip(chunks, embeddings))
                 ]
                 index.upsert(vectors=vectors)
@@ -106,37 +127,43 @@ class RAGPipeline:
                 return retrieve_relevant_chunks(collection, query, k)
             case "naive":
                 if not os.getenv("OPENAI_API_KEY"):
-                    raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI.")
+                    raise ValueError(
+                        "OPENAI_API_KEY environment variable is required for OpenAI."
+                    )
                 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-                
+
                 query_embedding_response = client.embeddings.create(
-                    input=[query],
-                    model="text-embedding-3-small"
+                    input=[query], model="text-embedding-3-small"
                 )
                 query_embedding = query_embedding_response.data[0].embedding
-                
+
                 chunk_embeddings_response = client.embeddings.create(
-                    input=self.chunks,
-                    model="text-embedding-3-small"
+                    input=self.chunks, model="text-embedding-3-small"
                 )
-                chunk_embeddings = [item.embedding for item in chunk_embeddings_response.data]
-                
+                chunk_embeddings = [
+                    item.embedding for item in chunk_embeddings_response.data
+                ]
+
                 similarities = [
                     (chunk, self.cosine_similarity(query_embedding, emb))
                     for chunk, emb in zip(self.chunks, chunk_embeddings)
                 ]
-                
+
                 similarities.sort(key=lambda x: x[1], reverse=True)
                 return [chunk for chunk, _ in similarities[:k]]
             case "pinecone":
                 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
                 if not os.environ.get("PINECONE_API_KEY"):
-                    raise ValueError("PINECONE_API_KEY environment variable is required for Pinecone.")
+                    raise ValueError(
+                        "PINECONE_API_KEY environment variable is required for Pinecone."
+                    )
                 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
                 index = pc.Index(self.pdf_id)
                 query_embedding = embedding_model.encode([query])[0].tolist()
-                results = index.query(vector=query_embedding, top_k=k, include_metadata=True)
-                return [match['metadata']['text'] for match in results['matches']]
+                results = index.query(
+                    vector=query_embedding, top_k=k, include_metadata=True
+                )
+                return [match["metadata"]["text"] for match in results["matches"]]
             case "nvidia":
                 filter_dict = {}
                 if self.year:
@@ -144,7 +171,9 @@ class RAGPipeline:
                 if self.quarter:
                     filter_dict["quarter"] = {"$eq": self.quarter}
                 if not os.environ.get("PINECONE_API_KEY"):
-                    raise ValueError("PINECONE_API_KEY environment variable is required for Pinecone.")
+                    raise ValueError(
+                        "PINECONE_API_KEY environment variable is required for Pinecone."
+                    )
                 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
                 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
                 index = pc.Index("document-embeddings-v2")
@@ -154,9 +183,9 @@ class RAGPipeline:
                     vector=query_embedding,
                     top_k=k,
                     include_metadata=True,
-                    filter=filter_dict if filter_dict else None
+                    filter=filter_dict if filter_dict else None,
                 )
-                return [match['metadata']['text'] for match in results['matches']]
+                return [match["metadata"]["text"] for match in results["matches"]]
             case _:
                 raise ValueError(f"Unsupported vector store: {self.vector_store}")
 

@@ -12,11 +12,16 @@ os.environ["PATH"] += os.pathsep + "C:\\Program Files\\Graphviz\\bin"
 
 # Create the diagram and save it as an image
 diagram_filename = "architecture_diagram.png"
-with Diagram("Streamlit PDF/URL Parser Architecture", filename="architecture_diagram", show=False, direction="LR"):
+with Diagram(
+    "Streamlit PDF/URL Parser Architecture",
+    filename="architecture_diagram",
+    show=False,
+    direction="LR",
+):
     # User
     user = Users("User")
 
-    # Streamlit Frontend 
+    # Streamlit Frontend
     frontend = Client("Streamlit Frontend")
 
     # Backend Processing
