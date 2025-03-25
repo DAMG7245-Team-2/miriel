@@ -148,62 +148,56 @@ async def upload_pdf(
 async def generate_summary(request: SummaryRequest):
     # logger = logging.getLogger(__name__)
 
+    # Send request to Redis stream and wait for response
+    if request.pdf_id not in active_rag_pipelines:
+        raise HTTPException(status_code=404, detail="PDF not found")
     try:
-        # Send request to Redis stream and wait for response
-        try:
-            if request.pdf_id not in active_rag_pipelines:
-                raise HTTPException(status_code=404, detail="PDF not found")
-            content = get_pdf_content(request.pdf_id)
-            logger.info(
-                f"Sending PDF content to Redis stream for {request.pdf_id} content: {content}"
-            )
-            await send_to_redis_stream(
-                "pdf_content",
-                {
-                    "pdf_id": request.pdf_id,
-                    "content": content,
-                },
-            )
-            logger.info(f"PDF content sent to Redis stream for {request.pdf_id}")
-            await send_to_redis_stream(
-                "llm_requests",
-                {
-                    "type": "summary",
-                    "pdf_id": request.pdf_id,
-                    "max_tokens": request.max_tokens,
-                    "model": request.model,
-                },
-            )
-            logger.info(f"Summary request sent to Redis stream for {request.pdf_id}")
-            response = await receive_llm_response()
-            logger.info(
-                f"Summary response received from Redis stream for {request.pdf_id}"
-            )
-            if not response:
-                raise HTTPException(status_code=408, detail="LLM response timeout")
+        content = get_pdf_content(request.pdf_id)
+        logger.info(
+            f"Sending PDF content to Redis stream for {request.pdf_id} content: {content}"
+        )
+        await send_to_redis_stream(
+            "pdf_content",
+            {
+                "pdf_id": request.pdf_id,
+                "content": content,
+            },
+        )
+        logger.info(f"PDF content sent to Redis stream for {request.pdf_id}")
+        await send_to_redis_stream(
+            "llm_requests",
+            {
+                "type": "summary",
+                "pdf_id": request.pdf_id,
+                "max_tokens": request.max_tokens,
+                "model": request.model,
+            },
+        )
+        logger.info(f"Summary request sent to Redis stream for {request.pdf_id}")
+        response = await receive_llm_response()
+        logger.info(f"Summary response received from Redis stream for {request.pdf_id}")
+        if not response:
+            raise HTTPException(status_code=408, detail="LLM response timeout")
 
-            # Extract usage metrics from response
-            usage_metrics = response.get("usage", {})
-            if not usage_metrics:
-                logger.warning("No usage metrics found in response")
+        # Extract usage metrics from response
+        usage_metrics = response.get("usage", {})
+        if not usage_metrics:
+            logger.warning("No usage metrics found in response")
 
-            return {
-                "summary": response.get("content", ""),
-                "usage_metrics": {
-                    "input_tokens": usage_metrics.get("input_tokens", 0),
-                    "output_tokens": usage_metrics.get("output_tokens", 0),
-                    "total_tokens": usage_metrics.get("total_tokens", 0),
-                    "cost": usage_metrics.get("cost", 0.0),
-                },
-            }
-
-        except Exception as e:
-            logger.error(f"LLM processing failed: {str(e)}")
-            raise HTTPException(status_code=500, detail="Summary generation failed")
-
-    except FileNotFoundError as e:
-        logger.error(f"PDF content lookup failed: {str(e)}")
-        raise HTTPException(status_code=404, detail="PDF content not found")
+        return {
+            "summary": response.get("content", ""),
+            "usage_metrics": {
+                "input_tokens": usage_metrics.get("input_tokens", 0),
+                "output_tokens": usage_metrics.get("output_tokens", 0),
+                "total_tokens": usage_metrics.get("total_tokens", 0),
+                "cost": usage_metrics.get("cost", 0.0),
+            },
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"LLM processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Summary generation failed")
 
 
 @app.post("/ask_question", status_code=status.HTTP_200_OK, tags=["Assignment 4.1"])
