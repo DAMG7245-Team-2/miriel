@@ -151,6 +151,8 @@ async def generate_summary(request: SummaryRequest):
     try:
         # Send request to Redis stream and wait for response
         try:
+            if request.pdf_id not in active_rag_pipelines:
+                raise HTTPException(status_code=404, detail="PDF not found")
             content = get_pdf_content(request.pdf_id)
             logger.info(
                 f"Sending PDF content to Redis stream for {request.pdf_id} content: {content}"
