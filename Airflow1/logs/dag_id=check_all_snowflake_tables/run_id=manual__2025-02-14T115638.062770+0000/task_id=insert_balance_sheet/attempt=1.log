@@ -1,0 +1,95 @@
+[2025-02-14T11:56:50.910+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-02-14T11:56:50.926+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: check_all_snowflake_tables.insert_balance_sheet manual__2025-02-14T11:56:38.062770+00:00 [queued]>
+[2025-02-14T11:56:50.936+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: check_all_snowflake_tables.insert_balance_sheet manual__2025-02-14T11:56:38.062770+00:00 [queued]>
+[2025-02-14T11:56:50.936+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 1
+[2025-02-14T11:56:50.948+0000] {taskinstance.py:2890} INFO - Executing <Task(SnowflakeOperator): insert_balance_sheet> on 2025-02-14 11:56:38.062770+00:00
+[2025-02-14T11:56:50.954+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=233) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-02-14T11:56:50.956+0000] {standard_task_runner.py:72} INFO - Started process 235 to run task
+[2025-02-14T11:56:50.956+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'check_all_snowflake_tables', 'insert_balance_sheet', 'manual__2025-02-14T11:56:38.062770+00:00', '--job-id', '111', '--raw', '--subdir', 'DAGS_FOLDER/snow.py', '--cfg-path', '/tmp/tmpfqe4ev4_']
+[2025-02-14T11:56:50.958+0000] {standard_task_runner.py:105} INFO - Job 111: Subtask insert_balance_sheet
+[2025-02-14T11:56:51.000+0000] {task_command.py:467} INFO - Running <TaskInstance: check_all_snowflake_tables.insert_balance_sheet manual__2025-02-14T11:56:38.062770+00:00 [running]> on host 94016f1f831c
+[2025-02-14T11:56:51.070+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='check_all_snowflake_tables' AIRFLOW_CTX_TASK_ID='insert_balance_sheet' AIRFLOW_CTX_EXECUTION_DATE='2025-02-14T11:56:38.062770+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-02-14T11:56:38.062770+00:00'
+[2025-02-14T11:56:51.072+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-02-14T11:56:51.083+0000] {sql.py:295} INFO - Executing: 
+TRUNCATE TABLE Balance_Sheet;
+INSERT INTO Balance_Sheet
+SELECT 
+    num.adsh,
+    sub.cik,
+    sub.name AS company_name,
+    NULL AS ticker, 
+    sub.sic,
+    sub.filed AS filing_date,
+    sub.fy AS fiscal_year,
+    sub.fp AS fiscal_period,
+    num.tag,
+    tag.tlabel AS description,
+    num.ddate,
+    num.value,
+    num.uom,
+    num.segments AS segment,
+    sub.form AS source
+FROM NUM num
+JOIN SUB sub ON num.adsh = sub.adsh
+JOIN TAG tag ON num.tag = tag.tag
+JOIN PRE pre ON num.adsh = pre.adsh AND num.tag = pre.tag
+WHERE pre.stmt = 'BS';
+[2025-02-14T11:56:51.092+0000] {base.py:84} INFO - Retrieving connection 'snowflake_default'
+[2025-02-14T11:56:51.100+0000] {base.py:84} INFO - Retrieving connection 'snowflake_default'
+[2025-02-14T11:56:51.101+0000] {connection.py:424} INFO - Snowflake Connector for Python Version: 3.13.2, Python Version: 3.12.9, Platform: Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.36
+[2025-02-14T11:56:51.102+0000] {connection.py:1213} INFO - Connecting to GLOBAL Snowflake domain
+[2025-02-14T11:56:51.102+0000] {connection.py:1295} INFO - This connection is in OCSP Fail Open Mode. TLS Certificates would be checked for validity and revocation status. Any other Certificate Revocation related exceptions or OCSP Responder failures would be disregarded in favor of connectivity.
+[2025-02-14T11:56:51.899+0000] {sql.py:511} INFO - Running statement: TRUNCATE TABLE Balance_Sheet;, parameters: None
+[2025-02-14T11:56:52.233+0000] {sql.py:520} INFO - Rows affected: 1
+[2025-02-14T11:56:52.234+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:400: DeprecationWarning: Import of fetch_all_handler from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  result = self._make_common_data_structure(handler(cur))  # type: ignore[attr-defined]
+
+[2025-02-14T11:56:52.235+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:401: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(sql, return_last, split_statements):
+
+[2025-02-14T11:56:52.236+0000] {snowflake.py:409} INFO - Rows affected: 1
+[2025-02-14T11:56:52.236+0000] {snowflake.py:410} INFO - Snowflake query id: 01ba62ec-0004-9ab9-0003-d563001282be
+[2025-02-14T11:56:52.237+0000] {sql.py:511} INFO - Running statement: INSERT INTO Balance_Sheet
+SELECT 
+    num.adsh,
+    sub.cik,
+    sub.name AS company_name,
+    NULL AS ticker, 
+    sub.sic,
+    sub.filed AS filing_date,
+    sub.fy AS fiscal_year,
+    sub.fp AS fiscal_period,
+    num.tag,
+    tag.tlabel AS description,
+    num.ddate,
+    num.value,
+    num.uom,
+    num.segments AS segment,
+    sub.form AS source
+FROM NUM num
+JOIN SUB sub ON num.adsh = sub.adsh
+JOIN TAG tag ON num.tag = tag.tag
+JOIN PRE pre ON num.adsh = pre.adsh AND num.tag = pre.tag
+WHERE pre.stmt = 'BS';, parameters: None
+[2025-02-14T11:56:52.974+0000] {sql.py:520} INFO - Rows affected: 0
+[2025-02-14T11:56:52.975+0000] {snowflake.py:409} INFO - Rows affected: 0
+[2025-02-14T11:56:52.975+0000] {snowflake.py:410} INFO - Snowflake query id: 01ba62ec-0004-9ab1-0003-d563001272de
+[2025-02-14T11:56:52.976+0000] {connection.py:803} INFO - closed
+[2025-02-14T11:56:53.093+0000] {connection.py:809} INFO - No async queries seem to be running, deleting session
+[2025-02-14T11:56:53.241+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:419: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(sql, return_last, split_statements):
+
+[2025-02-14T11:56:53.242+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/common/sql/operators/sql.py:311: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(self.sql, self.return_last, self.split_statements):
+
+[2025-02-14T11:56:53.260+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-02-14T11:56:53.261+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=check_all_snowflake_tables, task_id=insert_balance_sheet, run_id=manual__2025-02-14T11:56:38.062770+00:00, execution_date=20250214T115638, start_date=20250214T115650, end_date=20250214T115653
+[2025-02-14T11:56:53.307+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-02-14T11:56:53.329+0000] {taskinstance.py:3901} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-02-14T11:56:53.331+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

@@ -1,0 +1,129 @@
+version: '3.7'
+
+x-airflow-common:
+  &airflow-common
+  build: .
+  image: custom-airflow:latest
+  env_file:
+    - .env  # <-- Use shared .env for secret_key and other config
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    AWS_ACCESS_KEY_ID: ${aws_access_key_id}
+    AWS_SECRET_ACCESS_KEY: ${aws_secret_access_key}
+    AWS_REGION: ${AWS_REGION}
+    PINECONE_API_KEY: ${PINECONE_API_KEY}
+    MISTRAL_API_KEY: ${MISTRAL_API_KEY}
+    S3_BUCKET: ${S3_BUCKET}
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./plugins:/opt/airflow/plugins
+    - ./requirements.txt:/requirements.txt
+
+  depends_on:
+    - postgres
+    - redis
+  restart: always
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+
+  airflow-webserver:
+    <<: *airflow-common
+    ports:
+      - "8080:8080"
+    command: airflow webserver
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: airflow scheduler
+
+  airflow-worker:
+    <<: *airflow-common
+    command: airflow celery worker
+
+volumes:
+  postgres-data:
+
+
+# version: '3.7'
+
+# x-airflow-common:
+#   &airflow-common
+#   build: .
+#   image: custom-airflow:latest
+#   environment:
+#     &airflow-common-env
+#     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+#     AIRFLOW__CORE__FERNET_KEY: ""
+#     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+#     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+#     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+#     AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+#     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+#   volumes:
+#     - ./dags:/opt/airflow/dags
+#     - ./plugins:/opt/airflow/plugins
+#     - ./requirements.txt:/requirements.txt
+#   depends_on:
+#     - postgres
+#     - redis
+#   restart: always
+
+# services:
+#   postgres:
+#     image: postgres:13
+#     environment:
+#       POSTGRES_USER: airflow
+#       POSTGRES_PASSWORD: airflow
+#       POSTGRES_DB: airflow
+#     volumes:
+#       - postgres-data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U airflow"]
+#       interval: 10s
+#       retries: 5
+
+#   redis:
+#     image: redis:7.2-alpine
+#     ports:
+#       - "6379:6379"
+
+#   airflow-webserver:
+#     <<: *airflow-common
+#     ports:
+#       - "8080:8080"
+#     command: airflow webserver
+
+#   airflow-scheduler:
+#     <<: *airflow-common
+#     command: airflow scheduler
+
+#   airflow-worker:
+#     <<: *airflow-common
+#     command: airflow celery worker
+
+# volumes:
+#   postgres-data:

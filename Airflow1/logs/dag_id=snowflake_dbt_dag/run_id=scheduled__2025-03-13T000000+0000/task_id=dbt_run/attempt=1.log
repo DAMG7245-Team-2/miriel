@@ -1,0 +1,105 @@
+[2025-03-14T00:37:34.740+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-03-14T00:37:34.790+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: snowflake_dbt_dag.dbt_run scheduled__2025-03-13T00:00:00+00:00 [queued]>
+[2025-03-14T00:37:34.908+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: snowflake_dbt_dag.dbt_run scheduled__2025-03-13T00:00:00+00:00 [queued]>
+[2025-03-14T00:37:34.909+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 1
+[2025-03-14T00:37:34.950+0000] {taskinstance.py:2890} INFO - Executing <Task(DbtRunOperator): dbt_run> on 2025-03-13 00:00:00+00:00
+[2025-03-14T00:37:34.973+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=54) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-03-14T00:37:34.986+0000] {standard_task_runner.py:72} INFO - Started process 76 to run task
+[2025-03-14T00:37:34.982+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'snowflake_dbt_dag', 'dbt_run', 'scheduled__2025-03-13T00:00:00+00:00', '--job-id', '197', '--raw', '--subdir', 'DAGS_FOLDER/dbt-chck.py', '--cfg-path', '/tmp/tmpldza8_ep']
+[2025-03-14T00:37:34.999+0000] {standard_task_runner.py:105} INFO - Job 197: Subtask dbt_run
+[2025-03-14T00:37:35.292+0000] {task_command.py:467} INFO - Running <TaskInstance: snowflake_dbt_dag.dbt_run scheduled__2025-03-13T00:00:00+00:00 [running]> on host 29023daaca16
+[2025-03-14T00:37:35.932+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='snowflake_dbt_dag' AIRFLOW_CTX_TASK_ID='dbt_run' AIRFLOW_CTX_EXECUTION_DATE='2025-03-13T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-03-13T00:00:00+00:00'
+[2025-03-14T00:37:35.939+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-03-14T00:37:36.120+0000] {dbt_hook.py:117} INFO - dbt run --profiles-dir /opt/***/dbt/.dbt
+[2025-03-14T00:37:36.151+0000] {dbt_hook.py:126} INFO - Output:
+[2025-03-14T00:37:51.764+0000] {dbt_hook.py:130} INFO - [0m00:37:51  Running with dbt=1.9.2
+[2025-03-14T00:37:54.275+0000] {dbt_hook.py:130} INFO - [0m00:37:54  Registered adapter: snowflake=1.9.1
+[2025-03-14T00:37:57.463+0000] {dbt_hook.py:130} INFO - [0m00:37:57  Found 7 models, 32 data tests, 4 sources, 588 macros
+[2025-03-14T00:37:57.471+0000] {dbt_hook.py:130} INFO - [0m00:37:57
+[2025-03-14T00:37:57.473+0000] {dbt_hook.py:130} INFO - [0m00:37:57  Concurrency: 4 threads (target='dev')
+[2025-03-14T00:37:57.478+0000] {dbt_hook.py:130} INFO - [0m00:37:57
+[2025-03-14T00:37:58.061+0000] {dbt_hook.py:130} INFO - [0m00:37:58
+[2025-03-14T00:37:58.063+0000] {dbt_hook.py:130} INFO - [0m00:37:58  Finished running  in 0 hours 0 minutes and 0.58 seconds (0.58s).
+[2025-03-14T00:37:58.064+0000] {dbt_hook.py:130} INFO - [0m00:37:58  Encountered an error:
+[2025-03-14T00:37:58.065+0000] {dbt_hook.py:130} INFO - Runtime Error
+[2025-03-14T00:37:58.066+0000] {dbt_hook.py:130} INFO -   Database error while listing schemas in database "dbt_db"
+[2025-03-14T00:37:58.067+0000] {dbt_hook.py:130} INFO -   Database Error
+[2025-03-14T00:37:58.067+0000] {dbt_hook.py:130} INFO -     250001 (08001): Failed to connect to DB: sfedu02-pdb57018.snowflakecomputing.com:443. Your user account has been temporarily locked. Try again later or contact your account administrator for assistance. For more information about this error, go to https://community.snowflake.com/s/error-your-user-login-has-been-locked.
+[2025-03-14T00:37:59.169+0000] {dbt_hook.py:132} INFO - Command exited with return code 2
+[2025-03-14T00:37:59.192+0000] {taskinstance.py:3313} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow_dbt/operators/dbt_operator.py", line 98, in execute
+    self.create_hook().run_cli('run')
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow_dbt/hooks/dbt_hook.py", line 138, in run_cli
+    raise AirflowException("dbt command failed")
+airflow.exceptions.AirflowException: dbt command failed
+[2025-03-14T00:37:59.199+0000] {taskinstance.py:1226} INFO - Marking task as FAILED. dag_id=snowflake_dbt_dag, task_id=dbt_run, run_id=scheduled__2025-03-13T00:00:00+00:00, execution_date=20250313T000000, start_date=20250314T003734, end_date=20250314T003759
+[2025-03-14T00:37:59.243+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-03-14T00:37:59.244+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 197 for task dbt_run (dbt command failed; 76)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/cli.py", line 116, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3006, in _run_raw_task
+    return _run_raw_task(
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 274, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3161, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3185, in _execute_task
+    return _execute_task(self, context, task_orig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow_dbt/operators/dbt_operator.py", line 98, in execute
+    self.create_hook().run_cli('run')
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow_dbt/hooks/dbt_hook.py", line 138, in run_cli
+    raise AirflowException("dbt command failed")
+airflow.exceptions.AirflowException: dbt command failed
+[2025-03-14T00:37:59.282+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2025-03-14T00:37:59.304+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-03-14T00:37:59.308+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

@@ -1,0 +1,144 @@
+[2025-04-08T03:16:01.000+0000] {processor.py:186} INFO - Started process (PID=33) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:01.029+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:16:01.051+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:16:01.050+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:05.162+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:16:05.027+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:16:05.168+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:06.146+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 5.185 seconds
+[2025-04-08T03:16:37.460+0000] {processor.py:186} INFO - Started process (PID=34) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:37.465+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:16:37.487+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:16:37.475+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:38.058+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:16:38.025+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:16:38.073+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:16:38.193+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 0.927 seconds
+[2025-04-08T03:17:08.707+0000] {processor.py:186} INFO - Started process (PID=35) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:08.721+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:17:08.754+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:17:08.750+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:09.540+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:17:09.484+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:17:09.545+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:09.637+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 1.068 seconds
+[2025-04-08T03:17:39.738+0000] {processor.py:186} INFO - Started process (PID=36) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:39.743+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:17:39.755+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:17:39.754+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:39.957+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:17:39.948+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:17:39.960+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:17:39.991+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 0.274 seconds
+[2025-04-08T03:18:10.665+0000] {processor.py:186} INFO - Started process (PID=37) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:10.686+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:18:10.729+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:18:10.725+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:11.764+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:18:11.747+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:18:11.773+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:11.952+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 1.439 seconds
+[2025-04-08T03:18:42.574+0000] {processor.py:186} INFO - Started process (PID=38) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:42.592+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:18:42.650+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:18:42.646+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:43.509+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:18:43.470+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:18:43.517+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:18:43.732+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 1.272 seconds
+[2025-04-08T03:19:13.936+0000] {processor.py:186} INFO - Started process (PID=39) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:13.948+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:19:13.974+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:19:13.963+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:14.657+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:19:14.606+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:19:14.663+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:14.794+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 0.891 seconds
+[2025-04-08T03:19:45.561+0000] {processor.py:186} INFO - Started process (PID=40) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:45.568+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:19:45.581+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:19:45.578+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:47.386+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:19:47.261+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:19:47.399+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:19:47.569+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 2.121 seconds
+[2025-04-08T03:20:18.457+0000] {processor.py:186} INFO - Started process (PID=41) to work on /opt/airflow/dags/pipeline.py
+[2025-04-08T03:20:18.459+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
+[2025-04-08T03:20:18.475+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:20:18.472+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:20:19.145+0000] {logging_mixin.py:190} INFO - [2025-04-08T03:20:19.124+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/pipeline.py", line 12, in <module>
+    from functions import (
+  File "/opt/airflow/dags/functions.py", line 6, in <module>
+    from mistralai import Mistral
+ModuleNotFoundError: No module named 'mistralai'
+[2025-04-08T03:20:19.152+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/pipeline.py
+[2025-04-08T03:20:19.256+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 1.071 seconds

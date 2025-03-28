@@ -1,0 +1,9 @@
+apache-airflow==2.8.0
+python-dotenv
+boto3
+mistralai
+sentence-transformers==2.2.2
+chunking-evaluation @ git+https://github.com/brandonstarxel/chunking_evaluation.git
+pinecone
+transformers==4.30.2
+huggingface-hub==0.16.4

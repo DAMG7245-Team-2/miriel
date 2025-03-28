@@ -1,0 +1,197 @@
+[2025-02-13T06:46:30.364+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-02-13T06:46:30.405+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: download_file.download_zip manual__2025-02-13T06:46:25.895900+00:00 [queued]>
+[2025-02-13T06:46:30.430+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: download_file.download_zip manual__2025-02-13T06:46:25.895900+00:00 [queued]>
+[2025-02-13T06:46:30.432+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 2
+[2025-02-13T06:46:30.468+0000] {taskinstance.py:2890} INFO - Executing <Task(PythonOperator): download_zip> on 2025-02-13 06:46:25.895900+00:00
+[2025-02-13T06:46:30.485+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'download_file', 'download_zip', 'manual__2025-02-13T06:46:25.895900+00:00', '--job-id', '32', '--raw', '--subdir', 'DAGS_FOLDER/webscrape.py', '--cfg-path', '/tmp/tmp3jikdedb']
+[2025-02-13T06:46:30.481+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=349) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-02-13T06:46:30.487+0000] {standard_task_runner.py:105} INFO - Job 32: Subtask download_zip
+[2025-02-13T06:46:30.488+0000] {standard_task_runner.py:72} INFO - Started process 352 to run task
+[2025-02-13T06:46:30.652+0000] {task_command.py:467} INFO - Running <TaskInstance: download_file.download_zip manual__2025-02-13T06:46:25.895900+00:00 [running]> on host 8857fc08f6e4
+[2025-02-13T06:46:30.855+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='download_file' AIRFLOW_CTX_TASK_ID='download_zip' AIRFLOW_CTX_EXECUTION_DATE='2025-02-13T06:46:25.895900+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-02-13T06:46:25.895900+00:00'
+[2025-02-13T06:46:30.857+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-02-13T06:46:30.907+0000] {logger.py:11} INFO - ====== WebDriver manager ======
+[2025-02-13T06:46:31.252+0000] {logger.py:11} INFO - Get LATEST chromedriver version for google-chrome
+[2025-02-13T06:46:31.474+0000] {logger.py:11} INFO - Get LATEST chromedriver version for google-chrome
+[2025-02-13T06:46:31.668+0000] {logger.py:11} INFO - Driver [/home/***/.wdm/drivers/chromedriver/linux64/133.0.6943.98/chromedriver-linux64/chromedriver] found in cache
+[2025-02-13T06:46:32.259+0000] {taskinstance.py:3313} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 238, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 256, in execute_callable
+    return runner.run(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/webscrape.py", line 53, in download_with_selenium
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/chrome/webdriver.py", line 45, in __init__
+    super().__init__(
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/chromium/webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 250, in __init__
+    self.start_session(capabilities)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 342, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: probably user data directory is already in use, please specify a unique value for --user-data-dir argument, or don't use --user-data-dir
+Stacktrace:
+#0 0x560770782bba <unknown>
+#1 0x560770220790 <unknown>
+#2 0x560770259bc5 <unknown>
+#3 0x56077025592f <unknown>
+#4 0x5607702a6369 <unknown>
+#5 0x5607702a5896 <unknown>
+#6 0x560770297823 <unknown>
+#7 0x560770263a88 <unknown>
+#8 0x560770264bf1 <unknown>
+#9 0x56077074c15b <unknown>
+#10 0x5607707500e2 <unknown>
+#11 0x56077073901c <unknown>
+#12 0x560770750cd4 <unknown>
+#13 0x56077071d48f <unknown>
+#14 0x5607707714f8 <unknown>
+#15 0x5607707716c9 <unknown>
+#16 0x560770781a36 <unknown>
+#17 0x7f8c14f5e1c4 <unknown>
+
+[2025-02-13T06:46:32.345+0000] {taskinstance.py:1226} INFO - Marking task as UP_FOR_RETRY. dag_id=download_file, task_id=download_zip, run_id=manual__2025-02-13T06:46:25.895900+00:00, execution_date=20250213T064625, start_date=20250213T064630, end_date=20250213T064632
+[2025-02-13T06:46:32.443+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-02-13T06:46:32.445+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 32 for task download_zip (Message: session not created: probably user data directory is already in use, please specify a unique value for --user-data-dir argument, or don't use --user-data-dir
+Stacktrace:
+#0 0x560770782bba <unknown>
+#1 0x560770220790 <unknown>
+#2 0x560770259bc5 <unknown>
+#3 0x56077025592f <unknown>
+#4 0x5607702a6369 <unknown>
+#5 0x5607702a5896 <unknown>
+#6 0x560770297823 <unknown>
+#7 0x560770263a88 <unknown>
+#8 0x560770264bf1 <unknown>
+#9 0x56077074c15b <unknown>
+#10 0x5607707500e2 <unknown>
+#11 0x56077073901c <unknown>
+#12 0x560770750cd4 <unknown>
+#13 0x56077071d48f <unknown>
+#14 0x5607707714f8 <unknown>
+#15 0x5607707716c9 <unknown>
+#16 0x560770781a36 <unknown>
+#17 0x7f8c14f5e1c4 <unknown>
+; 352)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/cli.py", line 116, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3006, in _run_raw_task
+    return _run_raw_task(
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 274, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3161, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3185, in _execute_task
+    return _execute_task(self, context, task_orig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 238, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 256, in execute_callable
+    return runner.run(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/webscrape.py", line 53, in download_with_selenium
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/chrome/webdriver.py", line 45, in __init__
+    super().__init__(
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/chromium/webdriver.py", line 66, in __init__
+    super().__init__(command_executor=executor, options=options)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 250, in __init__
+    self.start_session(capabilities)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 342, in start_session
+    response = self.execute(Command.NEW_SESSION, caps)["value"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py", line 429, in execute
+    self.error_handler.check_response(response)
+  File "/home/airflow/.local/lib/python3.12/site-packages/selenium/webdriver/remote/errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: probably user data directory is already in use, please specify a unique value for --user-data-dir argument, or don't use --user-data-dir
+Stacktrace:
+#0 0x560770782bba <unknown>
+#1 0x560770220790 <unknown>
+#2 0x560770259bc5 <unknown>
+#3 0x56077025592f <unknown>
+#4 0x5607702a6369 <unknown>
+#5 0x5607702a5896 <unknown>
+#6 0x560770297823 <unknown>
+#7 0x560770263a88 <unknown>
+#8 0x560770264bf1 <unknown>
+#9 0x56077074c15b <unknown>
+#10 0x5607707500e2 <unknown>
+#11 0x56077073901c <unknown>
+#12 0x560770750cd4 <unknown>
+#13 0x56077071d48f <unknown>
+#14 0x5607707714f8 <unknown>
+#15 0x5607707716c9 <unknown>
+#16 0x560770781a36 <unknown>
+#17 0x7f8c14f5e1c4 <unknown>
+
+[2025-02-13T06:46:32.514+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2025-02-13T06:46:32.589+0000] {dagrun.py:977} ERROR - Failed to get task for ti <TaskInstance: download_file.upload_to_s3 manual__2025-02-13T06:46:25.895900+00:00 [up_for_retry]>. Marking it as removed.
+[2025-02-13T06:46:32.603+0000] {dagrun.py:977} ERROR - Failed to get task for ti <TaskInstance: download_file.unzip_files manual__2025-02-13T06:46:25.895900+00:00 [up_for_retry]>. Marking it as removed.
+[2025-02-13T06:46:32.631+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-02-13T06:46:32.646+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

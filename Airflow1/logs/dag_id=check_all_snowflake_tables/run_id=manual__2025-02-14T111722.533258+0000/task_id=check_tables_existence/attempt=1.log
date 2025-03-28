@@ -1,0 +1,52 @@
+[2025-02-14T11:17:24.572+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-02-14T11:17:24.585+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: check_all_snowflake_tables.check_tables_existence manual__2025-02-14T11:17:22.533258+00:00 [queued]>
+[2025-02-14T11:17:24.592+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: check_all_snowflake_tables.check_tables_existence manual__2025-02-14T11:17:22.533258+00:00 [queued]>
+[2025-02-14T11:17:24.593+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 1
+[2025-02-14T11:17:24.605+0000] {taskinstance.py:2890} INFO - Executing <Task(SnowflakeOperator): check_tables_existence> on 2025-02-14 11:17:22.533258+00:00
+[2025-02-14T11:17:24.611+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=169) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-02-14T11:17:24.613+0000] {standard_task_runner.py:72} INFO - Started process 171 to run task
+[2025-02-14T11:17:24.613+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'check_all_snowflake_tables', 'check_tables_existence', 'manual__2025-02-14T11:17:22.533258+00:00', '--job-id', '95', '--raw', '--subdir', 'DAGS_FOLDER/snow.py', '--cfg-path', '/tmp/tmpsxb7ijf0']
+[2025-02-14T11:17:24.616+0000] {standard_task_runner.py:105} INFO - Job 95: Subtask check_tables_existence
+[2025-02-14T11:17:24.660+0000] {task_command.py:467} INFO - Running <TaskInstance: check_all_snowflake_tables.check_tables_existence manual__2025-02-14T11:17:22.533258+00:00 [running]> on host 94016f1f831c
+[2025-02-14T11:17:24.737+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='check_all_snowflake_tables' AIRFLOW_CTX_TASK_ID='check_tables_existence' AIRFLOW_CTX_EXECUTION_DATE='2025-02-14T11:17:22.533258+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-02-14T11:17:22.533258+00:00'
+[2025-02-14T11:17:24.739+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-02-14T11:17:24.752+0000] {sql.py:295} INFO - Executing: 
+SELECT COUNT(*)
+FROM information_schema.tables
+WHERE table_name IN ('NUM', 'PRE', 'TAG', 'RAW_SUB');
+[2025-02-14T11:17:24.763+0000] {base.py:84} INFO - Retrieving connection 'snowflake_default'
+[2025-02-14T11:17:24.772+0000] {base.py:84} INFO - Retrieving connection 'snowflake_default'
+[2025-02-14T11:17:24.774+0000] {connection.py:424} INFO - Snowflake Connector for Python Version: 3.13.2, Python Version: 3.12.9, Platform: Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.36
+[2025-02-14T11:17:24.775+0000] {connection.py:1213} INFO - Connecting to GLOBAL Snowflake domain
+[2025-02-14T11:17:24.776+0000] {connection.py:1295} INFO - This connection is in OCSP Fail Open Mode. TLS Certificates would be checked for validity and revocation status. Any other Certificate Revocation related exceptions or OCSP Responder failures would be disregarded in favor of connectivity.
+[2025-02-14T11:17:25.754+0000] {sql.py:511} INFO - Running statement: SELECT COUNT(*)
+FROM information_schema.tables
+WHERE table_name IN ('NUM', 'PRE', 'TAG', 'RAW_SUB');, parameters: None
+[2025-02-14T11:17:26.468+0000] {sql.py:520} INFO - Rows affected: 1
+[2025-02-14T11:17:26.469+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:400: DeprecationWarning: Import of fetch_all_handler from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  result = self._make_common_data_structure(handler(cur))  # type: ignore[attr-defined]
+
+[2025-02-14T11:17:26.471+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:401: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(sql, return_last, split_statements):
+
+[2025-02-14T11:17:26.472+0000] {snowflake.py:409} INFO - Rows affected: 1
+[2025-02-14T11:17:26.473+0000] {snowflake.py:410} INFO - Snowflake query id: 01ba62c5-0004-9ab2-0003-d56300126332
+[2025-02-14T11:17:26.474+0000] {connection.py:803} INFO - closed
+[2025-02-14T11:17:26.591+0000] {connection.py:809} INFO - No async queries seem to be running, deleting session
+[2025-02-14T11:17:26.773+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/snowflake/hooks/snowflake.py:419: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(sql, return_last, split_statements):
+
+[2025-02-14T11:17:26.775+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/providers/common/sql/operators/sql.py:311: DeprecationWarning: Import of return_single_query_results from the '***.providers.common.sql.hooks' module is deprecated and will
+be removed in the future. Please import it from '***.providers.common.sql.hooks.handlers'.
+  if return_single_query_results(self.sql, self.return_last, self.split_statements):
+
+[2025-02-14T11:17:26.792+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-02-14T11:17:26.793+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=check_all_snowflake_tables, task_id=check_tables_existence, run_id=manual__2025-02-14T11:17:22.533258+00:00, execution_date=20250214T111722, start_date=20250214T111724, end_date=20250214T111726
+[2025-02-14T11:17:26.842+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-02-14T11:17:26.868+0000] {taskinstance.py:3901} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-02-14T11:17:26.871+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

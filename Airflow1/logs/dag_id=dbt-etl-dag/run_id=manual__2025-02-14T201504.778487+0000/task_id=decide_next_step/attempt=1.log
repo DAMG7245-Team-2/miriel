@@ -1,0 +1,26 @@
+[2025-02-14T20:15:10.732+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-02-14T20:15:10.750+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: dbt-etl-dag.decide_next_step manual__2025-02-14T20:15:04.778487+00:00 [queued]>
+[2025-02-14T20:15:10.759+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: dbt-etl-dag.decide_next_step manual__2025-02-14T20:15:04.778487+00:00 [queued]>
+[2025-02-14T20:15:10.759+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 1
+[2025-02-14T20:15:10.772+0000] {taskinstance.py:2890} INFO - Executing <Task(BranchPythonOperator): decide_next_step> on 2025-02-14 20:15:04.778487+00:00
+[2025-02-14T20:15:10.780+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=198) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-02-14T20:15:10.782+0000] {standard_task_runner.py:72} INFO - Started process 200 to run task
+[2025-02-14T20:15:10.782+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'dbt-etl-dag', 'decide_next_step', 'manual__2025-02-14T20:15:04.778487+00:00', '--job-id', '189', '--raw', '--subdir', 'DAGS_FOLDER/dbt-etl.py', '--cfg-path', '/tmp/tmpd5oevr_f']
+[2025-02-14T20:15:10.785+0000] {standard_task_runner.py:105} INFO - Job 189: Subtask decide_next_step
+[2025-02-14T20:15:10.830+0000] {task_command.py:467} INFO - Running <TaskInstance: dbt-etl-dag.decide_next_step manual__2025-02-14T20:15:04.778487+00:00 [running]> on host aff10611ebf2
+[2025-02-14T20:15:10.905+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='dbt-etl-dag' AIRFLOW_CTX_TASK_ID='decide_next_step' AIRFLOW_CTX_EXECUTION_DATE='2025-02-14T20:15:04.778487+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-02-14T20:15:04.778487+00:00'
+[2025-02-14T20:15:10.907+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-02-14T20:15:10.918+0000] {baseoperator.py:423} WARNING - BranchPythonOperator.execute cannot be called outside TaskInstance!
+[2025-02-14T20:15:10.927+0000] {logging_mixin.py:190} INFO - here is result
+[2025-02-14T20:15:10.928+0000] {logging_mixin.py:190} INFO - [{'COUNT(*)': 4}]
+[2025-02-14T20:15:10.929+0000] {python.py:240} INFO - Done. Returned value was: proceed_with_next_task
+[2025-02-14T20:15:10.930+0000] {branch.py:38} INFO - Branch into proceed_with_next_task
+[2025-02-14T20:15:10.930+0000] {skipmixin.py:233} INFO - Following branch ('proceed_with_next_task',)
+[2025-02-14T20:15:10.938+0000] {skipmixin.py:281} INFO - Skipping tasks [('no_required_tables_found', -1)]
+[2025-02-14T20:15:10.967+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-02-14T20:15:10.968+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=dbt-etl-dag, task_id=decide_next_step, run_id=manual__2025-02-14T20:15:04.778487+00:00, execution_date=20250214T201504, start_date=20250214T201510, end_date=20250214T201510
+[2025-02-14T20:15:10.998+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-02-14T20:15:11.021+0000] {taskinstance.py:3901} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-02-14T20:15:11.026+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
