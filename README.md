@@ -145,7 +145,7 @@ miriel/
 
 - **FastAPI Backend**: [http://35.212.110.110:8080/docs](http://35.212.110.110:8080/docs)
 - **Streamlit Frontend**: [https://miriel-frontend.streamlit.app/](https://miriel-frontend.streamlit.app/)
-- **GitHub Project**: [https://github.com/orgs/DAMG7245-Team-2/projects/2](https://github.com/orgs/DAMG7245-Team-2/projects/2)
+- **GitHub Project**: [https://github.com/orgs/DAMG7245-Team-2/projects/3](https://github.com/orgs/DAMG7245-Team-2/projects/3)
 - **Codelabs Documentation**: [https://codelabs-preview.appspot.com/?file_id=1TF7GZ750KJaCr6cjvyliaNIw2xbDnQxW8954510jy1o/#0](https://codelabs-preview.appspot.com/?file_id=1TF7GZ750KJaCr6cjvyliaNIw2xbDnQxW8954510jy1o/#0)
 - **Demo Video**: [Youtube](https://www.youtube.com/watch?v=nrw8KiRCwU4)
 
